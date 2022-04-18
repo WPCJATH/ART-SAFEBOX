@@ -1,0 +1,174 @@
+<! index html>
+{% load static %}
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <meta name="description" content="The main page of Art-Safebox"/>
+        <meta name="author" content="Eric"/>
+        <title>Art-Safebox</title>
+         <link REL="SHORTCUT ICON" HREF="{% static "favicon.ico" %}"/>
+        <!-- Bootstrap core CSS -->
+        <link href="{% static 'bootstrap_theme/bootstrap.css' %}" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="{% static 'blocks.css' %}"/>
+        <script type="text/javascript" src="{% static 'jquery/jquery-3.6.0.min.js'%}"></script>
+        <script type="text/javascript" src="{% static 'js/custom.js' %}"></script>
+        <script>
+            checkSigninState("home.html", true);
+        </script>
+    </head>
+    <body class="fw-light text-secondary">
+        <nav class="bg-white fixed-top fs-4 navbar navbar-expand-lg navbar-light py-lg-1"> 
+            <div class="container"> 
+                <div class="w-25">
+                    <img src="{% static 'favicon.ico' %}" class="w-25"/>
+                    <a class="bg-white fw-bold navbar-brand " href="#" target="_pg_blank">Art-Safebox</a>
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown-3" aria-controls="navbarNavDropdown-3" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> 
+                </button>
+                <div class="collapse navbar-collapse " id="navbarNavDropdown-3"> 
+                    <ul class="ms-auto navbar-nav"> 
+                        <li class="nav-item"><a class="nav-link px-lg-3 py-lg-4" aria-current="page" href="index.html">Home</a>
+                        </li>                         
+                        <li class="nav-item"> <a class="nav-link px-lg-3 py-lg-4" href="signin.html">Sign In</a>
+                        </li>
+                        <li class="nav-item"> <a class="active nav-link px-lg-3 py-lg-4" href="">Sign Up</a>
+                        </li>                         
+                    </ul>                     
+                </div>                 
+            </div>             
+        </nav>
+        <nav class="bg-white navbar navbar-expand-lg navbar-light py-lg-1"> 
+            <div class="container"> <a class="fw-bold navbar-brand" href="#" target="_pg_blank"></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown-3" aria-controls="navbarNavDropdown-3" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> 
+                </button>
+                <div class="collapse navbar-collapse " id="navbarNavDropdown-3"> 
+                    <ul class="ms-auto navbar-nav">
+                        <li class="nav-item"> <a class="nav-link px-lg-3 py-lg-4 text-white" href="#">1</a> 
+                        </li>                         
+                    </ul>                     
+                </div>                 
+            </div>             
+        </nav>
+        <section class="background-cover bg-dark pb-5 position-relative pt-5 text-white" style="background-image:url({% static 'theme.jpeg' %});">
+            <div class="container pb-5 pt-5">
+                <div class="pb-5 pt-5 row">
+                    <div class="col-lg-6 pb-5 pt-5">
+                        <p class="fw-normal h4 text-uppercase">Upload Your Collections</p>
+                        <h1 class="display-3 fw-bold mb-3">Enjoy a safe art sharing experience.</h1>
+                        <p class="lead mb-4">Our ability to feel, act and communicate is indistinguishable from magic.</p>
+                    </div>
+                    <div id="form_parent" class="col-lg-6 pb-5 pt-5">
+                        <form id="form_self" role="form" class="ms-5">
+                            <p class="fs-2 fw-bold h4">Enter Your Account Here:</p>
+                            <p></p>
+                            <div class="mb-3" id="insert">
+                                <label for="user_id" class="fs-4">What ID do you want?</label>
+                                <input type="text" class="form-control fs-4" id="user_id" placeholder="Your Idea ID"/>
+                            </div>                             
+                            <p class="fs-6">Once your ID is confirmed, we will return your private key(password) immediately. Please keep your ID and password in mind or record them somewhere safe.</p> 
+                            <p></p>
+                            <p class="fs-5">
+                                Already have an account? <a href="signin.html" class="text-light">Sign In</a>
+                                Here. </p> 
+                            <button id="signup-btn" type="submit" class="bg-white btn btn-primary fs-4 pb-2 pe-4 ps-4 pt-2">Sign Up</button>
+                        </form>
+                    </div>
+
+                        <script>
+                            function CopyText() {
+                                const copyText = document.getElementById("input");
+                                copyText.select();
+                                copyText.setSelectionRange(0, 99999);
+                                navigator.clipboard.writeText(copyText.value);
+                                customAlert("Copied successfully!");
+                            }
+
+                            document.querySelector("#signup-btn").onclick=function(){
+                                let username = document.getElementById("user_id").value;
+                                if (username===""){
+                                    customAlert("The ID you input cannot be empty.");
+                                    return false;
+                                }
+
+                                // send ajax
+                                $.ajax({
+                                    url: 'signup',
+                                    type : "POST",
+                                    dataType : 'json',
+                                    data : {
+                                        id: username,
+                                    },
+                                    success: function(results) {
+                                        if (results.status === 1){
+                                            if (!results.msg){
+                                                customAlert("Something goes wrong, please try later.");
+                                                return;
+                                            }
+                                            let formated_msg = "";
+                                            for (let i=0; i<60; i++){
+                                                formated_msg += results.msg[i];
+                                            }
+                                            formated_msg += "....... (Please copy to see the entire password.)";
+                                            localStorage.setItem("user",username)
+                                            document.getElementById("form_parent").removeChild(document.getElementById("form_self"));
+                                            document.getElementById("form_parent").insertAdjacentHTML('afterbegin',
+                                                `<form role="form" class="ms-5">
+                                                <p class="fs-2 fw-bold h4">Wecome! <a>@${username}</a></p>
+                                                <p class="fs-3">Please keep it in mind or record it somewhere safe.</p>
+                                                <p class="fs-3">This is your password:</p>
+                                                <div id="insert" class="alert alert-dark fs-2 row">
+                                                    <l id="text_from" class="col-11" style="word-wrap:break-word">${formated_msg}</l>
+                                                    <div class="col-1"></div>
+                                                    <textarea style="position: absolute;top: 0;left: 0;opacity: 0;z-index: -10;" id="input">${results.msg}</textarea>
+                                                    <div class="background-cover btn opacity-85" style="background-image:url({% static 'copy.png' %});position:absolute;right:5px;top:5px;width:50px;height:50px" onclick="CopyText()"></div>
+                                                </div>
+                                                <a class="bg-white btn btn-primary fs-4 pb-2 pe-4 ps-4 pt-2" href="signin.html">To Sign In</a>
+                                                </form>`
+                                            );
+                                        }
+                                        else{
+                                            customAlert("The user ID: " + username + " is already exists, please try another one.");
+                                        }
+                                    },
+                                    error: function() {
+                                        customAlert("Sign up failed! Please try again!");
+                                    }
+                                });
+                                return false;
+                                }
+                        </script>
+                </div>
+            </div>
+        </section>
+        <div class="container-fluid p-0">
+            <div class="g-0 row">
+</div>
+        </div>
+        <footer class="bg-dark bg-gradient pt-5 text-white"> 
+            <div class="container"> 
+                <div class="row"> 
+                    <div class="col-xl-4 py-3"> <a href="#" class="d-inline-block fw-bold h2 link-light mb-4 text-decoration-none" target="_pg_blank">Art-Safebox</a> 
+                        <p class="mb-3">A secure digital art works sharing, exchanging, and enjoying platform. We do our best to protect your artwork and your profits.</p> 
+                        <div class="mb-4"> <a href="#" class="link-light text-decoration-none">+852 1212-5656</a> <br/> <a href="#" class="link-light text-decoration-none">contact@artsafebox.com</a> 
+                        </div>                         
+                    </div>                     
+                </div>                 
+                <div class="pb-3 pt-3 small"> 
+                    <hr class="border-secondary mt-0"/> 
+                    <div class="align-items-center row">
+                        <div class="col-md pb-2 pt-2">
+                            <p class="mb-0">&copy; 2002 - 2022 | All Rights Reserved - Art-Safebox</p>
+                        </div>
+                        <div class="col-md-auto pb-2 pt-2">
+                            <a href="#" class="link-light text-decoration-none">Privacy Policy</a> | <a href="#" class="link-light text-decoration-none">Terms of Use</a>
+                        </div>
+                    </div>                     
+                </div>                 
+            </div>             
+        </footer>
+        <script src="{% static 'assets/js/popper.min.js' %}"></script>
+        <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    </body>
+</html>

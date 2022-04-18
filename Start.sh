@@ -1,0 +1,1 @@
+python manage.py runsslserver --certificate Certificate/cert.crt --key Certificate/key.key 127.0.0.1:8000

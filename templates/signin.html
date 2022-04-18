@@ -1,0 +1,160 @@
+<! templates/signin html>
+{% load static %}
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <meta name="description" content="The signin page of Art-Safebox"/>
+        <meta name="author" content="Eric"/>
+        <title>Art-Safebox</title>
+         <link REL="SHORTCUT ICON" HREF="{% static "favicon.ico" %}"/>
+        <!-- Bootstrap core CSS -->
+        <link href="{% static 'bootstrap_theme/bootstrap.css' %}" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="{% static 'blocks.css' %}"/>
+        <script type="text/javascript" src="{% static 'jquery/jquery-3.6.0.min.js'%}"></script>
+        <script type="text/javascript" src="{% static 'js/custom.js' %}"></script>
+        <script>
+            checkSigninState("home.html", true);
+        </script>
+    </head>
+    <body class="fw-light text-secondary">
+        <nav class="bg-white fixed-top fs-4 navbar navbar-expand-lg navbar-light py-lg-1"> 
+            <div class="container"> 
+                <div class="w-25">
+                    <img src="{% static 'favicon.ico' %}" class="w-25" alt="Icon here."/><a class="bg-white fw-bold navbar-brand " href="#" target="_pg_blank">Art-Safebox</a>
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown-3" aria-controls="navbarNavDropdown-3" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> 
+                </button>
+                <div class="collapse navbar-collapse " id="navbarNavDropdown-3"> 
+                    <ul class="ms-auto navbar-nav"> 
+                        <li class="nav-item">
+                            <a class="nav-link px-lg-3 py-lg-4" aria-current="page" href="index.html">Home</a>
+                        </li>                         
+                        <li class="nav-item">
+                            <a class="active nav-link px-lg-3 py-lg-4" href="">Sign In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-lg-3 py-lg-4" href="signup.html">Sign Up</a>
+                        </li>                         
+                    </ul>                     
+                </div>                 
+            </div>             
+        </nav>
+        <nav class="bg-white navbar navbar-expand-lg navbar-light py-lg-1"> 
+            <div class="container"> <a class="fw-bold navbar-brand" href="#" target="_pg_blank"></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown-3" aria-controls="navbarNavDropdown-3" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> 
+                </button>
+                <div class="collapse navbar-collapse " id="navbarNavDropdown-3"> 
+                    <ul class="ms-auto navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link px-lg-3 py-lg-4 text-white" href="#">1</a>
+                        </li>                         
+                    </ul>                     
+                </div>                 
+            </div>             
+        </nav>
+        <section class="background-cover bg-dark pb-5 position-relative pt-5 text-white" style=background-image:url({% static 'theme.jpeg' %});>
+            <div class="container pb-5 pt-5">
+                <div class="pb-5 pt-5 row">
+                    <div class="col-lg-6 pb-5 pt-5">
+                        <p class="fw-normal h4 text-uppercase">Upload Your Collections</p>
+                        <h1 class="display-3 fw-bold mb-3">Enjoy a safe art sharing experience.</h1>
+                        <p class="lead mb-4">Our ability to feel, act and communicate is indistinguishable from magic.</p>
+                    </div>
+
+                    <div class="col-lg-6 pb-5 pt-5">
+                        <form role="form" class="ms-5">
+                            <p class="fs-2 fw-bold h4">Enter Your Account Here:</p>
+                            <p></p> 
+                            <div class="mb-3"> 
+                                <label for="user_id" class="fs-4">User ID</label>
+                                <input type="text" class="form-control fs-4" id="user_id" placeholder="Enter Your ID"/> 
+                            </div>                             
+                            <div class="mb-3" id="insert">
+                                <label for="passwd" class="fs-4">Password</label>                                 
+                                <input type="password" class="form-control fs-4" id="passwd" placeholder="Password"/> 
+                            </div>
+                            <p class="fs-5"> Do not have an account? <a href="signup.html" class="text-light">Sign Up</a> Here. </p>
+                            <button id="signin_btn" type="submit" class="bg-white btn btn-primary fs-4 pb-2 pe-4 ps-4 pt-2">Sign In</button>
+                        </form>
+                    </div>
+
+                    <script>
+                        if (localStorage.getItem('user')){
+                            document.getElementById("user_id").value = localStorage.getItem('user');
+                        }
+
+                        document.querySelector("#signin_btn").onclick=function(){
+                            let username = document.getElementById("user_id").value;
+                            let password = document.getElementById("passwd").value;
+                            if (username===""){
+                                customAlert("User ID should not be empty!");
+                                return false;
+                            }
+
+                            localStorage.setItem('user', username);
+
+                            if (password===""){
+                               customAlert("Password should not be empty!");
+                                return false;
+                            }
+
+                            $.ajax({
+                                url: 'signin',
+                                type : "POST",
+                                dataType : 'json',
+                                data : {
+                                    id: username,
+                                    pwd: password
+                                },
+                                success: function(results) {
+                                    if (results.status === 1){
+                                        customAlert("Welcome! " + username + ".");
+                                        window.location.replace("home.html");
+                                    }
+                                    else{
+                                        customAlert("Oops! The ID and Password you entered are not match. Please try again.");
+                                        document.getElementById("passwd").value = "";
+                                    }
+                                },
+                                error: function() {
+                                    customAlert("Oops! Request failed! Please check your Internet Connection.");
+                                    document.getElementById("passwd").value = "";
+                                }
+                            });
+                            return false;
+                        }
+                    </script>
+                </div>
+            </div>
+        </section>
+        <div class="container-fluid p-0">
+            <div class="g-0 row">
+</div>
+        </div>
+        <footer class="bg-dark bg-gradient pt-5 text-white">
+            <div class="container"> 
+                <div class="row"> 
+                    <div class="col-xl-4 py-3"> <a href="" class="d-inline-block fw-bold h2 link-light mb-4 text-decoration-none" target="_pg_blank">Art-Safebox</a>
+                        <p class="mb-3">A secure digital art works sharing, exchanging, and enjoying platform. We do our best to protect your artwork and your profits.</p> 
+                        <div class="mb-4"> <a href="#" class="link-light text-decoration-none">+852 1212-5656</a> <br/> <a href="#" class="link-light text-decoration-none">contact@artsafebox.com</a> 
+                        </div>                         
+                    </div>                     
+                </div>                 
+                <div class="pb-3 pt-3 small"> 
+                    <hr class="border-secondary mt-0"/> 
+                    <div class="align-items-center row">
+                        <div class="col-md pb-2 pt-2">
+                            <p class="mb-0">&copy; 2002 - 2022 | All Rights Reserved - Art-Safebox</p>
+                        </div>
+                        <div class="col-md-auto pb-2 pt-2"><a href="" class="link-light text-decoration-none">Privacy Policy</a> | <a href="" class="link-light text-decoration-none">Terms of Use</a>
+                        </div>
+                    </div>                     
+                </div>                 
+            </div>             
+        </footer>
+        <script src="{% static 'assets/js/popper.min.js' %}"></script>
+        <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    </body>
+</html>

@@ -1,0 +1,142 @@
+<! index html>
+{% load static %}
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <meta name="description" content="The main page of Art-Safebox"/>
+        <meta name="author" content="Eric"/>
+        <title>Art-Safebox</title>
+         <link REL="SHORTCUT ICON" HREF="{% static "favicon.ico" %}"/>
+        <!-- Bootstrap core CSS -->
+        <link href="{% static 'bootstrap_theme/bootstrap.css' %}" rel="stylesheet" type="text/css"/>
+        <link href="{% static 'viewer/viewer.css' %}" rel="stylesheet" type="text/css"/>
+        <link rel="stylesheet" href="{% static 'blocks.css' %}"/>
+        <script type="text/javascript" src="{% static 'viewer/viewer.js'%}"></script>
+        <script type="text/javascript" src="{% static 'jquery/jquery-3.6.0.min.js'%}"></script>
+        <script type="text/javascript" src="{% static 'js/custom.js' %}"></script>
+        <script>
+            checkSigninState("others?id={{ other_id }}.html", true);
+        </script>
+    </head>
+    <body class="fw-light text-secondary">
+        <nav class="bg-white fixed-top fs-4 navbar navbar-expand-lg navbar-light py-lg-1">
+            <div class="container">
+                <div class="w-25">
+                    <img src="{% static 'favicon.ico' %}" class="w-25" alt="Icon here."/><a class="bg-white fw-bold navbar-brand " href="#" target="_pg_blank">Art-Safebox</a>
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown-3" aria-controls="navbarNavDropdown-3" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> 
+                </button>
+                <div class="collapse navbar-collapse " id="navbarNavDropdown-3"> 
+                    <ul class="ms-auto navbar-nav"> 
+                        <li class="nav-item">
+                            <a class="nav-link px-lg-3 py-lg-4" aria-current="page" href="">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-lg-3 py-lg-4" href="signin.html">Sign In</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-lg-3 py-lg-4" href="signup.html">Sign Up</a>
+                        </li>
+                    </ul>
+                </div>                 
+            </div>             
+        </nav>
+        <nav class="bg-white navbar navbar-expand-lg navbar-light py-lg-1"> 
+            <div class="container"> <a class="fw-bold navbar-brand" href="#" target="_pg_blank"></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown-3" aria-controls="navbarNavDropdown-3" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> 
+                </button>
+                <div class="collapse navbar-collapse " id="navbarNavDropdown-3"> 
+                    <ul class="ms-auto navbar-nav">
+                        <li class="nav-item"> <a class="nav-link px-lg-3 py-lg-4 text-white" href="#">1</a> 
+                        </li>                         
+                    </ul>                     
+                </div>                 
+            </div>             
+        </nav>
+        <main class="background-cover pb-5">
+            <section> 
+                <div class="container"> 
+                    <div class="justify-content-center row"> 
+</div>                     
+                </div>                 
+            </section>
+            <div class="container pb-4 pt-4">
+                <div class="align-items-center row">
+                    <div class="col">
+                        <hr class="mb-0 mt-0"/> 
+                    </div>
+                    <div class="col text-center">
+                        <small class="fs-2 fw-normal lead mb-0">@{{ other_id }}</small>
+                        <small class="fs-2 fw-normal lead mb-0  text-dark">&apos;s Collections</small> 
+                    </div>
+                    <div class="col">
+                        <hr class="mb-0 mt-0"/> 
+                    </div>
+                </div>
+            </div>
+            <section>
+                <div class="container">
+
+                    <div class="justify-content-center row">
+                        {%  for collection in collections %}
+                            <div class="col-6 col-lg-4 col-md-4 pb-3 pt-3">
+                                <div class=" placeholder-glow shadow">
+                                    <a class="d-block mb-3" style="cursor: zoom-in">
+                                        <img id="img_{{ collection.idx }}" data-original="static/previews/{{collection.path}}" src="static/previews/{{collection.path}}" class="img-fluid w-100" alt="Product image"/>
+                                    </a>
+                                    <a href="others.html?id={{ collection.owner }}" class="d-inline-block fs-4 link-secondary mb-2 small text-decoration-none">{{ collection.owner }}</a>
+                                    <a class="d-inline-block float-end fs-4 link-secondary mb-2 me-2 small text-center text-decoration-none">{{ collection.price }} XAV</a>
+                                    <a class="link-dark text-decoration-none"><h3 class="fs-5">{{ collection.title }}</h3></a>
+                                    <div>
+                                        <a class="align-middle btn btn-dark fs-3 text-white w-100" href="signin.html">Purchase</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+
+                </div>                 
+            </section>
+        </main>
+        <div class="container-fluid p-0">
+            <div class="g-0 row">
+</div>
+        </div>
+        <footer class="bg-dark bg-gradient pt-5 text-white"> 
+            <div class="container"> 
+                <div class="row"> 
+                    <div class="col-xl-4 py-3"> <a href="#" class="d-inline-block fw-bold h2 link-light mb-4 text-decoration-none" target="_pg_blank">Art-Safebox</a> 
+                        <p class="mb-3">A secure digital art works sharing, exchanging, and enjoying platform. We do our best to protect your artwork and your profits.</p> 
+                        <div class="mb-4"> <a href="#" class="link-light text-decoration-none">+852 1212-5656</a> <br/> <a href="#" class="link-light text-decoration-none">contact@artsafebox.com</a> 
+                        </div>                         
+                    </div>                     
+                </div>                 
+                <div class="pb-3 pt-3 small"> 
+                    <hr class="border-secondary mt-0"/> 
+                    <div class="align-items-center row">
+                        <div class="col-md pb-2 pt-2">
+                            <p class="mb-0">&copy; 2002 - 2022 | All Rights Reserved - Art-Safebox</p>
+                        </div>
+                        <div class="col-md-auto pb-2 pt-2"><a href="#" class="link-light text-decoration-none">Privacy Policy</a> | <a href="#" class="link-light text-decoration-none">Terms of Use</a>
+                        </div>
+                    </div>                     
+                </div>                 
+            </div>             
+        </footer>
+        {%  for collection in collections %}
+            <script>
+                new Viewer(document.getElementById('img_{{ collection.idx }}'),{
+                    url: 'data-original',
+                    title: false,
+                    toolbar: false,
+                    navbar: false
+                });
+            </script>
+        {% endfor %}
+        <script src="{% static 'assets/js/popper.min.js' %}"></script>
+        <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    </body>
+</html>
