@@ -7,8 +7,9 @@ function purchase(title){
             title: title}),
         dataType: "json",
         success: function(results) {
-            if (results.status===1)
-                alert("The purchase request has been sent successfully. Please wait patiently for the host to process it.");
+            if (results.msg)
+                alert(results.msg);
+            if (results.status===1) {}
             else
                 window.location.reload();
         },

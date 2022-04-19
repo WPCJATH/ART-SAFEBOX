@@ -50,7 +50,8 @@ class DBmanager:
             return
         # id | owner_id | price | encrypted_content | preview_path | status
         self.cur.execute(
-            "CREATE TABLE '{}' (ID TEXT, OWNER_ID TEXT, PRICE REAL, ENCRYPTED_CONTENT BOLB, PREVIEW_PATH TEXT, STATUS TEXT);".format(
+            "CREATE TABLE '{}' "
+            "(ID TEXT, OWNER_ID TEXT, PRICE REAL, ENCRYPTED_CONTENT BOLB, PREVIEW_PATH TEXT, STATUS TEXT);".format(
                 self.COLLECTIONS_TABLE_NAME
             )
         )
@@ -134,6 +135,7 @@ class DBmanager:
         )
         # self.conn.commit()
 
+    '''
     def remove_collection(self, collection_id):
         self.cur.execute(
             "DELETE FROM '{}' WHERE id = '{}'".format(
@@ -141,6 +143,7 @@ class DBmanager:
             )
         )
         # self.conn.commit()
+    '''
 
     def update_collection(
             self,
@@ -232,11 +235,13 @@ class DBmanager:
         )
         # self.conn.commit()
 
-    def remove_user(self, user_id):
+    '''
+        def remove_user(self, user_id):
         self.cur.execute(
             "DELETE FROM '{}' WHERE id = '{}'".format(self.USER_TABLE_NAME, user_id)
         )
         # self.conn.commit()
+    '''
 
     def update_user(
             self,
@@ -310,6 +315,43 @@ class DBmanager:
             )
         )
         # self.conn.commit()
+
+    def update_transaction(self,
+                           timestamp: float,
+                           type: str,
+                           content: str,
+                           collection_id: str,
+                           src_user_id: str,
+                           dest_user_id: str,
+                           status: str,
+                           amount: float,
+                           ):
+        """Update any field of the transaction table in database."""
+        for field_name, field_value in zip(
+                [
+                    f"{type=}".split("=")[0],
+                    f"{content=}".split("=")[0],
+                    f"{collection_id=}".split("=")[0],
+                    f"{src_user_id=}".split("=")[0],
+                    f"{dest_user_id=}".split("=")[0],
+                    f"{status=}".split("=")[0],
+                    f"{amount=}".split("=")[0],
+                ],
+                [type, content, collection_id, src_user_id, dest_user_id, status, amount],
+        ):
+            if field_value:
+                self.cur.execute(
+                    "UPDATE '{}' SET ? = ? WHERE id = ?;".format(
+                        self.COLLECTIONS_TABLE_NAME
+                    ),
+                    field_name,
+                    (field_value, timestamp),
+                )
+                # self.conn.commit()
+        pass
+
+    def update_transaction_status(self, timestamp: float, new_status: str):
+        self.update_transaction(timestamp, None, None, None, None, None, new_status, None)
 
     def get_all_transactions(self):
         self.cur.execute("SELECT * FROM '{}'".format(self.TRANSACTIONS_TABLE_NAME))
@@ -387,7 +429,7 @@ class User:
         Load a user by fetching the info from database using user id.
         @AttributeError raise exception if user id doesn't exist.
         """
-        if User.db == None:
+        if User.db is None:
             raise RuntimeError(
                 "Please connect User class to DBmanager by calling connect_db() first."
             )
@@ -406,7 +448,7 @@ class User:
         @AttributeError raise exception if id already exist.
         @return user instance and the RSA private key of user.
         """
-        if User.db == None:
+        if User.db is None:
             raise RuntimeError(
                 "Please connect User class to DBmanager by calling connect_db() first."
             )
@@ -445,6 +487,7 @@ class User:
         )
         return len(User.db.cur.fetchall()) > 0
 
+    @staticmethod
     def _gen_keys() -> typing.Tuple[str, str, str]:
         """
         Generate:
@@ -493,11 +536,12 @@ class User:
         return user_id, aes_key
 
     def encrypt_temp_collection(self, raw_data: bytes) -> bytes:
-        """Encrypt the temperorily decrypted collection's raw data using user's RSA public key."""
+        """Encrypt the temporarily decrypted collection's raw data using user's RSA public key."""
         return User._rsa_encrypt(raw_data, self.pub_key.encode("utf-8"))
 
+    @staticmethod
     def decrypt_temp_collection(rsa_encrypted_data: bytes, priv_key: str) -> bytes:
-        """Decrypt the temperorily encrypted collection's data using user's RSA private key."""
+        """Decrypt the temporarily encrypted collection's data using user's RSA private key."""
         return User._rsa_decrypt(rsa_encrypted_data, priv_key.encode("utf-8"))
 
     def update_db(
@@ -516,7 +560,7 @@ class User:
         - balance: user's balance of XAV coin
         - transactions: user's all transactions
         """
-        if User.db == None:
+        if User.db is None:
             raise RuntimeError(
                 "Please connect User class to DBmanager by calling User.connect_db() first."
             )
@@ -524,20 +568,22 @@ class User:
             self.id,
             self.validation_file,
             self.pub_key,
-            self.balance,
+            round(self.balance, 2),
         )
 
+    @staticmethod
     def _get_collections(id):
         # retrieve user's collections from database
-        if User.db == None:
+        if User.db is None:
             raise RuntimeError(
                 "Please connect User class to DBmanager by calling User.connect_db() first."
             )
         return User.db.get_collections_by_user_id(id)
 
+    @staticmethod
     def _get_transactions(id):
         # retrieve user's transactions from database
-        if User.db == None:
+        if User.db is None:
             raise RuntimeError(
                 "Please connect User class to DBmanager by calling User.connect_db() first."
             )
@@ -549,16 +595,19 @@ class User:
                                             tuple_transaction[7], tuple_transaction[8]))
         return transactions
 
+    @staticmethod
     def _get_rsa_keys() -> typing.Tuple[bytes, bytes]:
         """Get a pair of RSA keys in bytes format. Using the safest 2048 length of random bits to generate keys."""
         random_generator = Random.new().read
         rsa = RSA.generate(2048, random_generator)
         return rsa.exportKey(), rsa.publickey().exportKey()
 
+    @staticmethod
     def _get_aes_key() -> bytes:
         """Get a AES key in bytes format. Using the safest 32-bytes (256-bits) length."""
         return get_random_bytes(32)
 
+    @staticmethod
     def _rsa_encrypt(data: bytes, pub_key: bytes) -> bytes:
         """Encrypt with RSA public key. All operation are in bytes format."""
         pub_key = RSA.import_key(pub_key)
@@ -566,6 +615,7 @@ class User:
         encrypted_data_bytes = cipher_rsa.encrypt(data)
         return encrypted_data_bytes
 
+    @staticmethod
     def _rsa_decrypt(data: bytes, priv_key: bytes) -> bytes:
         """
         Decrypt with RSA private key.
@@ -583,8 +633,10 @@ class User:
         self.transactions.append(transaction)
 
     def __repr__(self):
-        return """User:\n\tid={}\n\tpub_key={}\n\tvalidation_file={}\n\tbalance={}\n\tcollections={
-        }\n\ttransactions={}""".format(
+        return """
+        User:\n\tid={}\n\tpub_key={}\n\tvalidation_file={}\n\tbalance={}\n\tcollections={
+        }\n\ttransactions={}
+        """.format(
             self.id,
             self.pub_key,
             self.validation_file,
@@ -688,6 +740,7 @@ class Collection:
         else:
             cls.db = db
 
+    @staticmethod
     def if_id_exist(collection_id):
         """Return whether the collection's id already exists in database or not."""
         if Collection.db is None:
@@ -724,6 +777,7 @@ class Collection:
             self.status,
         )
 
+    @staticmethod
     def _encrypt_content(data: bytes, aes_key: bytes) -> str:
         """
         Encrypt content using AES (CTR mode, allow arbitrary length of data).
@@ -754,15 +808,16 @@ class Collection:
             # print("Decrypt result:", pt)
             return pt
         except (ValueError, KeyError):
-            raise ("Incorrect decryption: could due to wrong nonce or AES key.")
+            raise "Incorrect decryption: could due to wrong nonce or AES key."
 
     def get_raw_data(self, owner: typing.Union[str, User], priv_key: str) -> bytes:
         """
-        <high level API>
-        Decrypt the collection and return raw data.
-        @param owner [str | User]: collection owner id or an owner's User instance. Pass an User instance will make be faster, otherwise need to search database using user id to get the user.
+        <high level API> Decrypt the collection and return raw data.
+        @param owner [str | User]: collection owner id or an owner's User instance. Pass a User instance will make it
+                                   faster, otherwise need to search database using user id to get the user.
         @param priv_key [str]: collection owner's private key.
-        @return [bytes]: raw data of the collection.
+        @return [bytes]: raw
+        data of the collection.
         """
         if isinstance(owner, str):
             owner = Collection.db.get_user_by_id(owner)
@@ -771,7 +826,7 @@ class Collection:
 
     @staticmethod
     def _gen_save_preview(raw_data, path):
-        """Generate low resolution thumbnail and return its bytes data."""
+        """Generate low resolution thumbnail and return its data in bytes."""
         PREVIEW_SIZE = (210, 294)  # default collection thumbnail size (width, height)
 
         img = raw_data  # Image.open(io.BytesIO(raw_data))
@@ -850,7 +905,7 @@ class Transaction:
         1. Constructors and public methods should check Transaction.db == None first,
             since connect to db first is the **Code of Conduct**.
         2. When use db, always call Transaction.db (cls.db is also acceptable but to
-            unify we dont use), and check Transaction.db==None at the begining.
+            unify we don't use), and check Transaction.db==None at the beginning.
     """
 
     db = None
@@ -868,6 +923,9 @@ class Transaction:
     )
     STATUS_REJECTED = (
         "rejected"  # the transaction (request) which was in pending status is rejected
+    )
+    STATUS_CLOSED = (
+        "closed"   # the transaction (request) which was in accepted/rejected status is closed
     )
 
     STATUS_UNSEEN = (
@@ -887,7 +945,7 @@ class Transaction:
             amount,
     ):
         """Internal use only! Please use Transaction.new()."""
-        if Transaction.db == None:
+        if Transaction.db is None:
             raise RuntimeError(
                 "Please connect Transaction class to DBmanager by calling Transaction.connect_db() first."
             )
@@ -942,7 +1000,7 @@ class Transaction:
         - preview_path: low resolution version of the image
         - status: pending if in the middle of a transaction, otherwise confirmed
         """
-        if Transaction.db == None:
+        if Transaction.db is None:
             raise RuntimeError(
                 "Please connect Transaction class to DBmanager by calling Transaction.connect_db() first."
             )
@@ -956,6 +1014,9 @@ class Transaction:
             self.status,
             self.amount,
         )
+
+    def _update_status(self, new_status: str):
+        self.db.update_transaction_status(self.timestamp, new_status)
 
     def __repr__(self):
         return "[{}] {}->{}: {} | {} | {} | {}".format(
@@ -1039,14 +1100,15 @@ class Controller:
 
         # check if there is any transaction of this user that is a reply notice
         # from a buying request. if so, the related collection's status should
-        # be PEDNIGN, and set the status to CONFIRMED.
+        # be ACCEPTED, and set the status to CONFIRMED.
         for transaction in user.transactions:
-            if transaction.status == Transaction.STATUS_PENDING:
+            if transaction.src_user_id == user_id and transaction.status == Transaction.STATUS_ACCEPTED:
                 collection = self._find_collection(transaction.collection_id)
-                raw_data = user.decrypt_temp_collection(priv_key)
-                aes_key = user._get_aes_key()
-                encrypted_content = self._encrypt_content(raw_data, aes_key)
+                raw_data = user.decrypt_temp_collection(collection.encrypted_content.encode("utf-8"), priv_key)
+                encrypted_content = Collection._encrypt_content(raw_data, user._get_aes_key())
                 collection.update_db(encrypted_content=encrypted_content)
+                transaction._update_status(Transaction.STATUS_CLOSED)
+
         return True
 
     def upload(
@@ -1081,17 +1143,16 @@ class Controller:
         creator.add_transaction(upload_notice)
         self._add_transaction(upload_notice)
 
-        # self.store_all_preview_to_local()
         return True
 
-    def buy(self, buyer_id: str, collection_id: str, priv_key: str):
+    def buy(self, buyer_id: str, collection_id: str):
         """
         User (id=buyer_id) send a buy request to the collection's owner.
         Return Fales if buyer dont have enough money.
         (Note: buyer's money will be reduced only when owner accept the buying request)
         """
-        self.__abandond_buy(buyer_id, collection_id)
-        self._accept_a_request(buy_request, collection, buyer, owner, priv_key)
+        return self.__abandond_buy(buyer_id, collection_id)
+        # self._accept_a_request(buy_request, collection, buyer, owner, priv_key)
 
     def __abandond_buy(self, buyer_id: str, collection_id: str):
         """
@@ -1136,6 +1197,7 @@ class Controller:
         owner = self._find_user(owner_id)
         owner.add_transaction(buy_request)
         self._add_transaction(buy_request)
+        return True
 
     def __abandond_response(
             self, user_id: str, transaction: Transaction, accept: bool, priv_key: str = None
@@ -1198,6 +1260,7 @@ class Controller:
             # print("Recharge amount must be a positive number.")
             # return False
         user = self._find_user(user_id)
+        user.balance += amount
         user.update_db(balance=user.balance + amount)
         return True
 
@@ -1215,7 +1278,8 @@ class Controller:
         # return the raw_data if success, otherwise None
         return raw_data
 
-    def _init_models(self) -> None:
+    @staticmethod
+    def _init_models() -> None:
         """Init DBmanager, User, Collection, Transaction by connect db to them."""
         User.connect_db(Controller.db)
         Collection.connect_db(Controller.db)
@@ -1279,7 +1343,7 @@ class Controller:
             all_transaction_list.append(transaction)
         return all_transaction_list
 
-    def _find_user(self, user_id: str) -> User:
+    def _find_user(self, user_id: str) -> [User, None]:
         """
         Find user's instance from _user_list. Return the user's instance
         if successful, otherwise None.
@@ -1291,7 +1355,7 @@ class Controller:
         # return None if cannot find the user.
         return None
 
-    def _find_collection(self, collection_id: str) -> Collection:
+    def _find_collection(self, collection_id: str) -> [Collection, None]:
         """
         Find collection's instance from _collection_list. Return the collection's
         instance if successful, otherwise None.
@@ -1325,37 +1389,37 @@ class Controller:
         """
         # search for the transactions with the right field value (start from the field has minimum search space)
         res_transaction_list = copy.deepcopy(self._transaction_list)
-        if src_user_id != None:
+        if src_user_id is not None:
             for transaction in res_transaction_list:
                 if transaction.src_user_id != src_user_id:
                     res_transaction_list.remove(transaction)
-        if dest_user_id != None:
+        if dest_user_id is not None:
             for transaction in res_transaction_list:
                 if transaction.dest_user_id != dest_user_id:
                     res_transaction_list.remove(transaction)
-        if collection_id != None:
+        if collection_id is not None:
             for transaction in res_transaction_list:
                 if transaction.collection_id != collection_id:
                     res_transaction_list.remove(transaction)
-        if status != None:
+        if status is not None:
             for transaction in res_transaction_list:
                 if transaction.status != status:
                     res_transaction_list.remove(transaction)
-        if amount_range != None:
+        if amount_range is not None:
             for transaction in res_transaction_list:
                 if (
                         transaction.amount < amount_range[0]
                         or transaction.amount > amount_range[1]
                 ):
                     res_transaction_list.remove(transaction)
-        if time_range != None:
+        if time_range is not None:
             for transaction in res_transaction_list:
                 if (
                         transaction.timestamp < time_range[0]
                         or transaction.timestamp > time_range[1]
                 ):
                     res_transaction_list.remove(transaction)
-        if type != None:
+        if type is not None:
             for transaction in res_transaction_list:
                 if transaction.type != type:
                     res_transaction_list.remove(transaction)
@@ -1383,6 +1447,7 @@ class Controller:
         """
         self._user_list.append(user)
 
+    @staticmethod
     def _get_collection_raw_data(
             collection: Collection, owner: User, priv_key: str
     ) -> bytes:
@@ -1483,7 +1548,8 @@ class Controller:
         seller.add_transaction(notice_to_seller)
         self._add_transaction(notice_to_seller)
 
-    def deinit(self):
+    @staticmethod
+    def deinit():
         Controller.db.cur.close()
         Controller.db.conn.close()
 
@@ -1513,6 +1579,7 @@ class Main:
     def __init__(self, ctrl: Controller):
         Main.ctrl = ctrl
 
+    @staticmethod
     def start():
         """Start event loop."""
         while 1:
@@ -1539,6 +1606,7 @@ class Main:
                     ret = Main.ctrl.download(params[0], params[1])
                 else:
                     raise ValueError(
-                        "Illegal function name, can only be within (signin, signup, upload, buy, response, recharge, download)"
+                        "Illegal function name, can only be within (signin, signup, upload, buy, response, recharge, "
+                        "download) "
                     )
                 backend_results[req_name_id] = ret

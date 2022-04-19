@@ -99,8 +99,8 @@ def purchase(request):
         res.delete_cookie("uid")
         res.delete_cookie("info")
         return res
-    status = models.do_purchase(user_id, title)
-    res = JsonResponse({"status": status}, status=200)
+    status, msg = models.do_purchase(user_id, title)
+    res = JsonResponse({"status": status, 'msg': msg}, status=200)
     res.set_cookie("info", cookie_content)
     return res
 

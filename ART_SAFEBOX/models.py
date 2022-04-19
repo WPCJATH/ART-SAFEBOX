@@ -1,5 +1,6 @@
 import io
 import traceback
+import random
 
 from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUploadedFile
 from PIL import Image
@@ -41,7 +42,7 @@ def get_all_previews():
                 Collection(idx, collection.id, collection.owner_id, collection.id, collection.price))
         except:
             pass
-    print(len(collections))
+    random.shuffle(collections)
     return collections
 
 
@@ -64,7 +65,14 @@ def get_others_previews(user_id):
 
 
 def do_purchase(user_id, title):
-    return 1
+    try:
+        re = ctrl.buy(user_id, title)
+        if re:
+            return 1, "Your request is successfully sent to the user, please wait for the owner process it. You will " \
+                      "be refined if the owner rejects your request. "
+    except:
+        traceback.print_exc()
+    return 0, "You balance is not enough for buying the artwork."
 
 
 def reformat_key(key):
@@ -93,11 +101,16 @@ def recharge_by_id(user_id, amount):
             return 1
         return 0
     except:
+        traceback.print_exc()
         return 0
 
 
 def get_balance_by_id(user_id):
-    return ctrl.getBalanceByID(user_id)
+    try:
+        return "{:.2f}".format(ctrl.getBalanceByID(user_id))
+    except:
+        traceback.print_exc()
+        return None
 
 
 def upload_img(source, title, price, user_id, priv_key):
