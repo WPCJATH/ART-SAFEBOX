@@ -9,9 +9,7 @@ function purchase(title){
         success: function(results) {
             if (results.msg)
                 alert(results.msg);
-            if (results.status===1) {}
-            else
-                window.location.reload();
+            window.location.reload();
         },
         fail: function(){
             alert("Purchase failed, please check your balance or network connection.");
@@ -107,7 +105,7 @@ function upload(){
         cache: false,
         success: function (results){
             if (results.status===1){
-                alert("Upload Successfully!");
+                // alert("Upload Successfully!");
                 window.location.reload();
             }
             else {
@@ -143,6 +141,54 @@ function checkSigninState(href, isIndex=false){
                     alert("Something goes wrong, please login again.");
                 }
                 window.location.replace(href);
+            }
+        },
+        fail: function (){
+           alert("Something goes wrong. Please reload the page.");
+           window.location.reload();
+        }
+    });
+}
+
+function accept_request(id, collection_id, src){
+    $.ajax({
+        type: "POST",
+        url: 'accept',
+        dataType: "json",
+        data: {
+          id: id, collection_id: collection_id, src: src
+        },
+        success: function (results){
+            if (results.status===1){
+               window.location.reload();
+            }
+            else {
+                alert("Accept sent failed, please try again later.");
+                window.location.reload();
+            }
+        },
+        fail: function (){
+           alert("Something goes wrong. Please reload the page.");
+           window.location.reload();
+        }
+    });
+}
+
+function reject_request(id, collection_id, src){
+    $.ajax({
+        type: "POST",
+        url: 'reject',
+        dataType: "json",
+        data: {
+          id: id, collection_id: collection_id, src:src
+        },
+        success: function (results){
+            if (results.status===1){
+               window.location.reload();
+            }
+            else {
+                alert("Reject sent failed, please try again later.");
+                window.location.reload();
             }
         },
         fail: function (){

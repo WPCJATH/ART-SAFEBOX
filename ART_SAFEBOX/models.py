@@ -1,4 +1,5 @@
 import io
+import threading
 import traceback
 import random
 
@@ -22,6 +23,20 @@ class Collection:
         self.idx = idx
 
 
+class Transaction:
+    def __init__(self, id, collection_id, content, src, amount, status):
+        self.id = id
+        self.content = content
+        self.collection_id = collection_id
+        self.src = src
+        self.amount = []
+        if amount is not None and amount != "None":
+            self.amount.append(amount)
+        self.pending = []
+        if status == "pending":
+            self.pending.append(1)
+
+
 '''
 ctrl.sign_in(params[0], params[1])
 ctrl.sign_up(params[0])
@@ -30,17 +45,29 @@ ctrl.buy(params[0], params[1])
 ctrl.response(params[0], params[1], params[2], params[3])
 ctrl.recharge(params[0], params[1])
 ctrl.download(params[0], params[1])
-ctrl._collection_list
+ctrl.collection_list
 '''
+
+
+def get_all_transactions(user_id):
+    transactions = []
+    for idx, transaction in enumerate(ctrl.get_transactions_by_user_id(user_id)):
+        transactions.append(
+            Transaction(transaction.id, transaction.collection_id, transaction.content, transaction.src_user_id
+                        , transaction.amount, transaction.status))
+    transactions.reverse()
+    return transactions
 
 
 def get_all_previews():
     collections = []
-    for idx, collection in enumerate(ctrl._collection_list):
+    for idx, collection in enumerate(ctrl.collection_list):
         try:
-            collections.append(
-                Collection(idx, collection.id, collection.owner_id, collection.id, collection.price))
+            if collection.status != "pending":
+                collections.append(
+                    Collection(idx, collection.id, collection.owner_id, collection.id, collection.price))
         except:
+            traceback.print_exc()
             pass
     random.shuffle(collections)
     return collections
@@ -73,6 +100,15 @@ def do_purchase(user_id, title):
     except:
         traceback.print_exc()
     return 0, "You balance is not enough for buying the artwork."
+
+
+def respond(user_id, src_id, transaction_id, collection_id, isAccept, priv_key=None):
+    try:
+        ctrl.response(user_id, src_id, transaction_id, collection_id, isAccept, priv_key)
+        return True
+    except:
+        traceback.print_exc()
+        return False
 
 
 def reformat_key(key):
@@ -115,42 +151,40 @@ def get_balance_by_id(user_id):
 
 def upload_img(source, title, price, user_id, priv_key):
     if priv_key is None or title is None or source is None:
-        return False, "Invalid file. 0"
+        return False, "Invalid file."
     suffix = source.name.split('.')[-1]
-    print(suffix)
     if suffix not in ["JPG", "jpg", "PNG", "png"]:
-        return False, "Unsupported file format. *.jpg or *.png only."
+        return False, "Unsupported file type. *.jpg or *.png only."
     try:
+        # Image.verify() will destroy the object, so we have to prepare 2 pieces of the Image object
         image = None
-        b_content = None
+        image_to_verify = None
         if isinstance(source, TemporaryUploadedFile):
+            image_to_verify = Image.open(source.temporary_file_path())
             image = Image.open(source.temporary_file_path())
-            b_content = open(source.temporary_file_path(), 'rb').read()
         elif isinstance(source, InMemoryUploadedFile):
+            image_to_verify = Image.open(source.file)
             image = Image.open(source.file)
-            b_content = source.file.read()
-        # image.verify()
+        image_to_verify.verify()
     except:
         traceback.print_exc()
-        return False, "Invalid file. 1"
+        return False, "Invalid file."
     try:
-        print(type(b_content))
-        re = ctrl.upload(title + '.' + suffix, user_id, float(price), image,
-                         priv_key)
+        re = ctrl.upload(title + '.' + suffix, user_id, float(price), image, priv_key)
         return re, ""
     except:
         traceback.print_exc()
         return False, "The title has been taken by other collections, please reset the title"
 
 
-def download_img(title, chunk_size=512):
+def download_img(title, priv_key):
     try:
-        with open('static/previews/' + title, 'rb') as f:
-            while True:
-                c = f.read(chunk_size)
-                if c:
-                    yield c
-                else:
-                    break
+        return io.BytesIO(ctrl.download(title, priv_key))
     except:
+        traceback.print_exc()
         return None
+
+
+def online_check(user, priv_key):
+    # This process is time-consuming, use a new thread to process it.
+    threading.Thread(ctrl.online_check(user, priv_key)).start()

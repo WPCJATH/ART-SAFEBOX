@@ -35,5 +35,7 @@ urlpatterns = [
     path('recharge', views.recharge),
     path('purchase', views.purchase),
     path('upload', views.upload),
-    path('download', views.download)
+    path('download', views.download),
+    path('accept', views.accept),
+    path('reject', views.reject)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

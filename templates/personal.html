@@ -89,7 +89,7 @@
                 <div class="container pb-4 pt-4">
                     <div class="align-items-center row">
                         <div class="w-50">
-                            <h2 class="fs-2 fw-bold lead mb-0 text-center text-dark">Messages</h2>
+                            <h2 class="fs-2 fw-bold lead mb-0 text-center text-dark">Messages({{ num }})</h2>
                         </div>
                         <div class="w-50">
                             <hr class="mb-0 mt-0"/> 
@@ -97,34 +97,27 @@
                     </div>
                 </div>
                 <div>
+                    {%  for transaction in transactions %}
+                        <div class="pb-3 pt-3">
+                            <div class="me-4 ms-4 placeholder-glow shadow"> <a class="d-block mb-3"></a>
+                                <p class="d-inline-block fs-4 mb-2 me-2 ms-1 small text-dark"> From </p>
+                                <a href="others.html?id={{ transaction.src }}" class="d-inline-block fs-4 link-secondary mb-2 small text-decoration-none">@{{ transaction.src }}</a>
+                                {% for amount in transaction.amount %}
+                                    <a class="d-inline-block float-end fs-4 link-secondary mb-2 me-2 small text-center text-decoration-none">Prize: {{ amount }} XAV</a>
+                                {% endfor %}
+                                <a class="link-dark text-decoration-none">
+                                    <h3 class="fs-5 me-1 ms-1">{{ transaction.content}}</h3>
+                                </a>
+                                {% for pending in transaction.pending %}
+                                    <div class="me-2 ms-2 row">
+                                        <a class="align-middle btn btn-dark col-6 text-white" onclick="accept_request('{{ transaction.id }}', '{{ transaction.collection_id }}', '{{ transaction.src }}')">Accept</a>
+                                        <a class="align-middle btn btn-dark col-6 text-white" onclick="reject_request('{{ transaction.id }}', '{{ transaction.src }}')">Reject</a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
 
-                    <div class="pb-3 pt-3"> 
-                        <div class="me-4 ms-4 placeholder-glow shadow"> <a href="#" class="d-block mb-3"></a>
-                            <p class="d-inline-block fs-4 mb-2 me-2 ms-1 small text-dark"> From </p>
-                            <a href="#" class="d-inline-block fs-4 link-secondary mb-2 small text-decoration-none">@Xavier555</a><a href="#" class="d-inline-block float-end fs-4 link-secondary mb-2 me-2 small text-center text-decoration-none">Prize: 10 XAV</a><a href="#" class="link-dark text-decoration-none"><h3 class="fs-5 me-1 ms-1">I want to buy your collection "47 Pics and Memes To Improve Your Mood"</h3></a>
-                            <div class="me-2 ms-2 row">
-
-                                <a class="align-middle btn btn-dark col-6 text-white" href="#">Accept</a><a class="align-middle btn btn-dark col-6 text-white" href="#">Reject</a>
-
-                            </div>                             
-                        </div>                         
-                    </div>
-
-
-                    <div class="pb-3 pt-3"> 
-                        <div class="me-4 ms-4 placeholder-glow shadow"> <a href="#" class="d-block mb-3"></a>
-                            <p class="d-inline-block fs-4 mb-2 me-2 ms-1 small text-dark"> From </p><a href="#" class="d-inline-block fs-4 link-secondary mb-2 small text-decoration-none">@Xavier555</a>
-                            <a href="#" class="d-inline-block float-end fs-4 link-secondary mb-2 me-2 small text-center text-decoration-none">Prize: 7 XAV</a>
-                            <a href="#" class="link-dark text-decoration-none"><h3 class="fs-5 me-1 ms-1">I accept your request of buying "47 Pics and Memes To Improve Your Mood"</h3></a>
-                        </div>                         
-                    </div>
-                    <div class="pb-3 pt-3"> 
-                        <div class="me-4 ms-4 placeholder-glow shadow"> <a href="#" class="d-block mb-3"></a>
-                            <p class="d-inline-block fs-4 mb-2 me-2 ms-1 small text-dark"> From </p><a href="#" class="d-inline-block fs-4 link-secondary mb-2 small text-decoration-none">@Xavier555</a>
-                            <a href="#" class="d-inline-block float-end fs-4 link-secondary mb-2 me-2 small text-center text-decoration-none">Prize: 10 XAV</a>
-                            <a href="#" class="link-dark text-decoration-none"><h3 class="fs-5 me-1 ms-1">I reject your request of buying "Into the Woods"</h3></a>
-                        </div>                         
-                    </div>
                 </div>
             </div>
             <div class="col container">

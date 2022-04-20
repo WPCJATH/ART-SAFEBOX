@@ -1,5 +1,7 @@
-from django.shortcuts import render, Http404
-from django.http import JsonResponse, StreamingHttpResponse
+import urllib.parse
+
+from django.shortcuts import render
+from django.http import JsonResponse, StreamingHttpResponse, Http404
 from . import accounts
 from . import models
 
@@ -47,6 +49,7 @@ def checkSigninState(request):
         res.delete_cookie("uid")
         res.delete_cookie("info")
         return res
+    models.online_check(user_id, accounts.AccountManager.get_priv_key(user_id, cookie_content))
     res = JsonResponse({"status": 1}, status=200)
     res.set_cookie("info", cookie_content)
     return res
@@ -76,7 +79,8 @@ def upload(request):
         res.delete_cookie("uid")
         res.delete_cookie("info")
         return res
-    re, msg = models.upload_img(img, title, price, user_id, accounts.AccountManager.get_priv_key(user_id, cookie_content))
+    re, msg = models.upload_img(img, title, price, user_id,
+                                accounts.AccountManager.get_priv_key(user_id, cookie_content))
     if not re:
         res = JsonResponse(
             {"status": 0, 'msg': msg}, status=200)
@@ -105,10 +109,6 @@ def purchase(request):
     return res
 
 
-def respond(request):
-    pass
-
-
 def recharge(request):
     if request.method != "POST":
         return JsonResponse({}, status=404)
@@ -129,28 +129,64 @@ def recharge(request):
 
 def download(request):
     if request.method != "GET":
+        raise Http404(request)
+    user_id = request.COOKIES.get("uid")
+    cookie_content = request.COOKIES.get("info")
+    cookie_content = accounts.AccountManager.check_login(user_id, cookie_content)
+    if cookie_content is None:
+        raise Http404(request)
+    title = request.GET.get('title')
+    generator = models.download_img(title, accounts.AccountManager.get_priv_key(user_id, cookie_content))
+    if generator is None:
+        raise Http404(request)
+    response = StreamingHttpResponse(generator)
+    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Disposition'] = 'attachment; filename*=UTF-8\'\'{}'.format(urllib.parse.quote(title))
+    response.set_cookie("info", cookie_content)
+    return response
+
+
+def accept(request):
+    return respond(request, True)
+
+
+def reject(request):
+    return respond(request, False)
+
+
+def respond(request, isAccept):
+    if request.method != "POST":
         return Http404(request)
     user_id = request.COOKIES.get("uid")
     cookie_content = request.COOKIES.get("info")
     cookie_content = accounts.AccountManager.check_login(user_id, cookie_content)
     if cookie_content is None:
         return Http404(request)
-    title = request.GET.get('title')
-    generator = models.download_img(title)
-    if generator is None:
-        return Http404(request)
-    response = StreamingHttpResponse(generator)
-    response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment;filename="{0}"'.format(title)
-    return response
+    collection_id = request.POST.get("collection_id")
+    src = request.POST.get("src")
+    transaction_id = request.POST.get("id")
+    if not models.respond(user_id, src, transaction_id, collection_id, isAccept,
+                          accounts.AccountManager.get_priv_key(user_id, cookie_content)):
+        res = JsonResponse({"status": 0}, status=200)
+        res.delete_cookie("uid")
+        res.delete_cookie("info")
+        return res
+    res = JsonResponse({"status": 1}, status=200)
+    res.set_cookie('info', cookie_content)
+    return res
 
 
 def personal(request):
     user_id = request.COOKIES.get("uid")
     balance = models.get_balance_by_id(user_id)
+    transactions = models.get_all_transactions(user_id)
     return render(request, "personal.html", context={'user_id': user_id,
                                                      'balance': balance,
-                                                     'collections': models.get_previews_by_id(user_id)})
+                                                     'collections': models.get_previews_by_id(user_id),
+                                                     'transactions': transactions,
+                                                     'num': len(transactions)
+                                                     }
+                  )
 
 
 def index(request):
@@ -167,10 +203,10 @@ def home(request):
 
 def other(request):
     if request.method != "GET":
-        return Http404(request)
+        raise Http404(request)
     other_id = request.GET.get('id')
     if not models.new_id_validation(other_id):
-        return Http404(request)
+        raise Http404(request)
     user_id = request.COOKIES.get("uid")
     cookie_content = request.COOKIES.get("info")
     cookie_content = accounts.AccountManager.check_login(user_id, cookie_content)
