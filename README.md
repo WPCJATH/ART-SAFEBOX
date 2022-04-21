@@ -2,6 +2,8 @@
 A Group Project code implementation of The HK PolyU COMP3334 Computer System Security of Group 39.
 This is a Client/Server based system which is built as a safe guarded digital artwork exchanging platform.
 
+[toc]
+
 ## System Design
 - Client/Server Architecture
 - [Django](https://www.djangoproject.com) Python Server
