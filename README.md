@@ -249,7 +249,7 @@ variables.
 ## Team Members
 - Bruce:  [Bruce312](https://github.com/Bruce312)
 - Eric:   [WPCJATH](https://github.com/WPCJATH)
-- Junpen: [Yang0303PP](https://github.com/YangJunPeng19990303)
+- Junpeng: [Yang0303PP](https://github.com/YangJunPeng19990303)
 - Xavier: [X3vvv](https://github.com/X3vvv)
 - Xianyi: [Azunyan-bot](https://github.com/Azunyan-bot)
 
