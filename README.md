@@ -3,7 +3,7 @@ A Group Project code implementation of The HK PolyU COMP3334 Computer System Sec
 This is a Client/Server based system which is built as a safe guarded digital artwork exchanging platform.
 
 
-
+## Contents
 - [ART-SAFEBOX](#art-safebox)
   - [System Design](#system-design)
     - [Backend Design](#backend-design)
