@@ -233,7 +233,7 @@ security mechanism.
 1. Go to Chrome or Safari, enter [`https://127.0.0.1:8000`](https://127.0.0.1:8000)
 2. If Chrome prevents you from opening the website, type `thisisunsafe` anywhere, the website will be opened.
 3. Here are some collections and users are already stored in the database, you can find the account and password from
-'accounts.txt'
+[`accounts.txt`](accounts.txt)
 
 ### Notes:
 1. Currently, only `*.JPG` or `*.PNG` images can be uploaded, and the size cannot exceed 10MB. Otherwise, the server 
