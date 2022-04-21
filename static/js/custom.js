@@ -9,7 +9,7 @@ function purchase(title){
         success: function(results) {
             if (results.msg)
                 alert(results.msg);
-            window.location.reload();
+            // window.location.reload();
         },
         fail: function(){
             alert("Purchase failed, please check your balance or network connection.");

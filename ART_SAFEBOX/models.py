@@ -38,18 +38,6 @@ class Transaction:
             self.pending.append(1)
 
 
-'''
-ctrl.sign_in(params[0], params[1])
-ctrl.sign_up(params[0])
-ctrl.upload(params[0], params[1], params[2], params[3])
-ctrl.buy(params[0], params[1])
-ctrl.response(params[0], params[1], params[2], params[3])
-ctrl.recharge(params[0], params[1])
-ctrl.download(params[0], params[1])
-ctrl.collection_list
-'''
-
-
 def get_all_transactions(user_id):
     transactions = []
     for idx, transaction in enumerate(ctrl.get_transactions_by_user_id(user_id)):
@@ -60,7 +48,7 @@ def get_all_transactions(user_id):
     return transactions
 
 
-def get_all_previews():
+def get_all_previews(shuffle=True):
     collections = []
     for idx, collection in enumerate(ctrl.collection_list):
         try:
@@ -70,13 +58,14 @@ def get_all_previews():
         except:
             traceback.print_exc()
             pass
-    random.shuffle(collections)
+    if shuffle:
+        random.shuffle(collections)
     return collections
 
 
 def get_previews_by_id(user_id):
     collections_ = []
-    collections = get_all_previews()
+    collections = get_all_previews(False)
     for collection in collections:
         if collection.owner == user_id:
             collections_.append(collection)
@@ -85,7 +74,7 @@ def get_previews_by_id(user_id):
 
 def get_others_previews(user_id):
     collections_ = []
-    collections = get_all_previews()
+    collections = get_all_previews(False)
     for collection in collections:
         if collection.owner != user_id:
             collections_.append(collection)
