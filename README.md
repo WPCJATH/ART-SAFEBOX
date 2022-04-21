@@ -197,7 +197,7 @@ logged out automatically.
 
 ## Demonstration
 [![Watch the video](images4readme/personal.png)](https://youtu.be/odazVf-90t0)
-If you cannot access the demo video via YouTube, you can download it [here](images4readme/demo.mov).
+If you cannot access the demo video via YouTube, you can download it [here](images4readme/demo.mp4).
 
 ## Limitations
 ### Long and unchangeable password.
