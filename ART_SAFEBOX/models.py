@@ -7,6 +7,7 @@ from django.core.files.uploadedfile import TemporaryUploadedFile, InMemoryUpload
 from PIL import Image
 
 from .backend import Controller
+random.seed(39)
 
 ctrl = Controller("static/previews/")
 
@@ -186,5 +187,7 @@ def download_img(title, priv_key):
 
 
 def online_check(user, priv_key):
-    # This process is time-consuming, use a new thread to process it.
-    threading.Thread(ctrl.online_check(user, priv_key)).start()
+    try:
+        ctrl.online_check(user, priv_key)
+    except:
+        traceback.print_exc()

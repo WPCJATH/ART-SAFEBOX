@@ -83,6 +83,13 @@ function upload(){
     }
     if (title===""){
         customAlert("The title cannot be empty.");
+        return;
+    }
+    for (let i=0; i<title.size; i++) {
+        if (title[i] === '#') {
+            customAlert("The title cannot contain character '#'.");
+            return;
+        }
     }
     price = parseFloat(price);
     if (isNaN(price) || price <= 0){
