@@ -157,7 +157,8 @@ single browser, because the AES key is random generated for each single sign in.
 logged out automatically.
 
 ## Demonstration
-![]()
+[![Watch the video](images4readme/personal.png)](https://youtu.be/odazVf-90t0)
+If you cannot access the demo video via YouTube, you can download it [here](images4readme/demo.mov).
 
 ## Limitations
 ### Long and unchangeable password.
