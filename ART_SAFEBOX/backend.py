@@ -868,9 +868,9 @@ class Collection:
     def get_raw_data(self, owner: typing.Union[str, User], priv_key: str) -> bytes:
         """
         <high level API> Decrypt the collection and return raw data.
-        @param owner [str | User]: collection owner id or an owner's User instance. Pass a User instance will make it
+        @param owner: collection owner id or an owner's User instance. Pass a User instance will make it
                                    faster, otherwise need to search database using user id to get the user.
-        @param priv_key [str]: collection owner's private key.
+        @param priv_key: collection owner's private key.
         @return [bytes]: raw
         data of the collection.
         """
@@ -1692,47 +1692,3 @@ class Controller:
             )
         )
 
-
-'''
-backend_requests = dict()
-backend_results = dict()
-
-
-class Main:
-    ctrl = None
-
-    def __init__(self, ctrl: Controller):
-        Main.ctrl = ctrl
-
-    @staticmethod
-    def start():
-        """Start event loop."""
-        while 1:
-            if len(backend_requests) != 0:
-                # get one request
-                for req_name_id in backend_requests.keys():
-                    params = backend_requests.pop(req_name_id)
-                    break
-                req_name = req_name_id.split("-")[0]
-                print(req_name, params)
-                if req_name == "signin":
-                    ret = Main.ctrl.sign_in(params[0], params[1])
-                elif req_name == "signup":
-                    ret = Main.ctrl.sign_up(params[0])
-                elif req_name == "upload":
-                    ret = Main.ctrl.upload(params[0], params[1], params[2], params[3])
-                elif req_name == "buy":
-                    ret = Main.ctrl.buy(params[0], params[1])
-                elif req_name == "response":
-                    ret = Main.ctrl.response(params[0], params[1], params[2], params[3])
-                elif req_name == "recharge":
-                    ret = Main.ctrl.recharge(params[0], params[1])
-                elif req_name == "download":
-                    ret = Main.ctrl.download(params[0], params[1])
-                else:
-                    raise ValueError(
-                        "Illegal function name, can only be within (signin, signup, upload, buy, response, recharge, "
-                        "download) "
-                    )
-                backend_results[req_name_id] = ret
-'''
