@@ -58,6 +58,8 @@ This is a Client/Server based system which is built as a safe guarded digital ar
 - **Transaction**: Object for messages and requests sending from or to users.
 - **Collections**: The object represents the artwork.
 - **Controller**: Execute specific tasks of the website/server.
+For more updated backend library, visit this [repo](https://github.com/X3vvv/Art-Safebox)
+
 
 #### The Entity Relationship Diagram of Database
 ![](images4readme/ERD.png)
